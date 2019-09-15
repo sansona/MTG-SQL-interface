@@ -1,0 +1,95 @@
+1 Ainok Survivalist
+1 Arcane Signet
+1 Bane of the Living
+1 Bloodstained Mire
+1 Brainstorm
+1 Breeding Pool
+1 Brine Elemental
+1 Burgeoning
+1 Chromeshell Crab
+1 City of Brass
+1 Cloudform
+1 Cloudstone Curio
+1 Command Tower
+1 Cryptolith Rite
+1 Cyclonic Rift
+1 Deathmist Raptor
+1 Demonic Tutor
+1 Den Protector
+1 Dream Chisel
+1 Echo Tracer
+1 Eternal Witness
+1 Exotic Orchard
+1 Exploration
+1 Fellwar Stone
+1 Flooded Grove
+1 Flooded Strand
+4 Forest
+1 Ghastly Conscription
+1 Gift of Doom
+1 Grim Haruspex
+1 Heroic Intervention
+1 Icefeather Aven
+4 Island
+1 Ixidron
+1 Jeskai Infiltrator
+1 Kadena's Silencer
+1 Kadena, Slinking Sorcerer
+1 Kheru Spellsnatcher
+1 Leyline of Anticipation
+1 Llanowar Wastes
+1 Mana Confluence
+1 Mirri's Guile
+1 Mischievous Quanar
+1 Mistfire Weaver
+1 Morphic Pool
+1 Mystic Forge
+1 Mystic Remora
+1 Nantuko Vigilante
+1 Noxious Revival
+1 Nurturing Peatland
+1 Obscuring AEther
+1 Overgrown Tomb
+1 Polluted Delta
+1 Ponder
+1 Preordain
+1 Primordial Mist
+1 Prismatic Vista
+1 Regrowth
+1 Rhystic Study
+1 Scroll of Fate
+1 Secret Plans
+1 Seedborn Muse
+1 Sensei's Divining Top
+1 Silumgar Assassin
+1 Sol Ring
+1 Stratus Dancer
+1 Sunken Ruins
+2 Swamp
+1 Sylvan Library
+1 Talisman of Curiosity
+1 Talisman of Dominance
+1 Talisman of Resilience
+1 Temur War Shaman
+1 Thieving Amalgam
+1 Trail of Mystery
+1 Twilight Mire
+1 Ugin, the Ineffable
+1 Unblinking Bleb
+1 Underground River
+1 Urborg, Tomb of Yawgmoth
+1 Vampiric Tutor
+1 Vedalken Orrery
+1 Vesuvan Shapeshifter
+1 Vivien, Champion of the Wilds
+1 Vizier of the Menagerie
+1 Voidmage Apprentice
+1 Waterlogged Grove
+1 Watery Grave
+1 Whisperwood Elemental
+1 Willbender
+1 Windswept Heath
+1 Wooded Foothills
+1 Yavimaya Coast
+
+
