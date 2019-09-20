@@ -11,13 +11,13 @@ class Card:
     base class for Deck object
 
     Args:
-        name (str): Gatherer name of card
-        count (int): number of card in deck
-        mana_cost (str): cost to cast card
-        cmc (int): converted mana cost of card
-        color_identity (str): commander color ID
-        card_type (tuple): type(s) of spell
-        text (str): oracle text of card
+            name (str): Gatherer name of card
+            count (int): number of card in deck
+            mana_cost (str): cost to cast card
+            cmc (int): converted mana cost of card
+            color_identity (str): commander color ID
+            card_type (tuple): type(s) of spell
+            text (str): oracle text of card
     """
 
     name: str
@@ -27,6 +27,7 @@ class Card:
     color_identity: str
     card_type: tuple
     text: str
+    im_url: str
 
 
 @dataclass
@@ -35,8 +36,8 @@ class Deck:
     class containing deck name and list of all Cards
 
     Args:
-        name (str): name of deck
-        cards (List of Cards): list containing Card objects
+            name (str): name of deck
+            cards (List of Cards): list containing Card objects
     """
 
     name: str
@@ -58,59 +59,6 @@ class Deck:
         '''
         return len(self.cards)
 
-    def n_card_type(self, type_string):
-        '''
-        returns number of cards containing type in card_type param
-
-        Args:
-            type_string (str): type of card
-        Returns:
-            (int): number of cards sharing type
-        '''
-        n = 0
-        for c in self.cards:
-            if any(type_string in str_ for str_ in c.card_type):
-                n += 1
-
-        return n
-
-    def n_keyword(self, keyword):
-        '''
-        return number of cards containing keyword in oracle text
-
-        Args:
-            keyword (str): string to be searched for
-        Returns:
-            (int): number of cards containing keyword
-        '''
-        n = 0
-        for c in self.cards:
-            if keyword in c.text:
-                n += 1
-
-        return n
-
-    def cmc_distribution(self, cost):
-        '''
-        return distribution of cmc greater and less than cost
-
-        Args:
-            cost (int): mana cost to be compared against
-        Returns:
-            (int, int, int): number of cards with cmc==cost, number of cards
-            with cmc < cost, number of cards with cmc > cost
-        '''
-        dist = [0, 0, 0]
-        for c in self.cards:
-            if c.cmc == cost:
-                dist[0] += c.count
-            elif c.cmc < cost:
-                dist[1] += c.count
-            else:
-                dist[2] += c.count
-
-        return dist
-
     def average_cmc(self):
         '''
         return average cmc of cards in deck
@@ -125,3 +73,87 @@ class Deck:
             total_mc += n.count*n.cmc
 
         return total_mc/n_nonlands
+
+    def subset_by_string(self, search_string: str, text='all'):
+        '''
+        Get subset of deck that contains search string
+
+        Args:
+                search_string (str): type of card
+                text (str): where in Deck data to perform string comparison:
+                options are ('type, text', 'all')
+        Returns:
+                (Deck): subset of original Deck with search_string
+        '''
+        subset_list = []
+        if text == 'type':
+            for c in self.cards:
+                if any(search_string in str_ for str_ in c.card_type):
+                    subset_list.append(c)
+        elif text == 'text':
+            for c in self.cards:
+                if any(search_string in str_ for str_ in c.text):
+                    subset_list.append(c)
+        else:
+            for c in self.cards:
+                if any(search_string in str_ for str_ in (c.text, c.card_type)):
+                    subset_list.append(c)
+
+        subset = Deck(f"{search_string}_subset", subset_list)
+
+        return subset
+
+    def subset_by_cmc(self, cost: int):
+        '''
+        return distribution of cmc greater and less than cost
+
+        Args:
+                cost (int): mana cost to be compared against
+        Returns:
+                (dict): containing subsets corresponding to equal to, below, and
+                above cost
+        '''
+        equal = []
+        below = []
+        above = []
+
+        for c in self.cards:
+            if c.cmc == cost:
+                equal.append(c)
+            elif c.cmc < cost:
+                below.append(c)
+            else:
+                above.append(c)
+
+        equal = Deck(f"cmc_{cost}", equal)
+        below = Deck(f"cmc_below_{below}", below)
+        above = Deck(f"cmc_above_{below}", above)
+
+        dist = {'equal': equal, 'below': below, 'above': above}
+        return dist
+
+    def subset_by_color(self, colors: tuple, only=False):
+        '''
+        Get subset of deck that shares color identity
+        WIP
+
+        Args:
+                colors (tuple): color identity
+                only (bool): if True, only subset if color identity perfectly
+                matches
+        Returns:
+                (Deck): subset of original Deck sharing color_identity
+        '''
+        subset = []
+        for c in self.cards:
+            color_id = sorted(c.color_identity)
+            breakpoint()
+            if any(c.color_identity) in colors:
+                subset.append(c)
+
+        subset = Deck(f"{colors}_subset", subset)
+
+        return subset
+
+    def get_images(self):
+        pass

@@ -14,10 +14,10 @@ def parse_xml_file(fname):
     reads in .xml file to Deck object
 
     Args:
-            fname (str): filename containing deck information
+        fname (str): filename containing deck information
 
     Returns:
-            (Deck)
+        (Deck)
     """
     xmldoc = minidom.parse(fname)
     card_xml = xmldoc.getElementsByTagName("card")
@@ -40,18 +40,21 @@ def parse_text_file(fname):
     parsing assumes formatting from tappedout export function
 
     Args:
-            fname (str): filename containing deck information
+        fname (str): filename containing deck information
 
     Returns:
-            (Deck)
+        (Deck)
     """
+
+    p = Path(fname)
+
     # read fname into df, handle formatting
-    if fname.lower().endswith(".txt"):
+    if p.suffix == ".txt":
         df = pd.read_fwf(fname, header=None)
         df.columns = ("Qty", "Name")
-    elif fname.lower().endswith("csv"):
+    elif p.suffix == ".csv":
         df = pd.read_csv(fname)
-    elif fname.lower().endswith("tsv"):
+    elif p.suffix == ".tsv":
         df = pd.read_csv(fname, sep="\t")
     else:
         sys.exit("Invalid file format")
@@ -67,7 +70,7 @@ def parse_text_file(fname):
     for c, q in zip(card_names, qty):
         card_list.append(fetch_card_data(c, q))
 
-    return Deck(Path(fname).stem, card_list)
+    return Deck(p.stem, card_list)
 
 
 def fetch_card_data(card_name, card_count):
@@ -75,10 +78,10 @@ def fetch_card_data(card_name, card_count):
     use scryfall API to convert card name to Card object
 
     Args:
-            card_name (str): name of card
-            card_count (int): number of card_names included in deck
+        card_name (str): name of card
+        card_count (int): number of card_names included in deck
     Returns:
-            (Card): containing relevant attributes fetched from scryfall
+        (Card): containing relevant attributes fetched from scryfall
     """
     card_obj = sc.cards.Named(fuzzy=card_name)
 
@@ -87,13 +90,7 @@ def fetch_card_data(card_name, card_count):
     color_identity = card_obj.color_identity(),
     card_type = card_obj.type_line(),
     text = card_obj.oracle_text()
+    im_url = card_obj.image_uris()['normal']
 
     return Card(card_name, int(card_count), mana_cost,
-                cmc, color_identity, card_type, text)
-
-
-d = parse_text_file('test_files/test.txt')
-print(d.average_cmc())
-print(d.n_card_type('Land'))
-print(d.n_keyword('damage'))
-print(d.cmc_distribution(4))
+                cmc, color_identity, card_type, text, im_url)
