@@ -11,7 +11,9 @@ from classes import Card, Deck
 
 def parse_xml_file(fname):
     """
-    reads in .xml file to Deck object
+    reads in .xml/.cod file to Deck object
+
+    Assumes Cockatrice export formatting
 
     Args:
         fname (str): filename containing deck information
@@ -24,13 +26,59 @@ def parse_xml_file(fname):
 
     # build Deck object
     card_list = []
+    errors = []
     for c in card_xml:
         card_name = c.attributes["name"].value
         card_count = int(c.attributes["number"].value)
-        cclass = fetch_card_data(card_name, card_count)
-        card_list.append(cclass)
+        try:
+            cclass = fetch_card_data(card_name, card_count)
+            card_list.append(cclass)
+        except KeyError:
+            # if any cards don't exist, save in errors
+            errors.append(card_name)
 
     return Deck(Path(fname).stem, card_list)
+
+
+def pad_txt_file(fname):
+    """
+    preprocesses .txt files. Other text formats are outputted in consistent
+    format via. tappedout exporting function, but .txt ir prone to padding
+    issues. If run into problems reading into df from padding issues, pad
+    third char
+
+    Args:
+        fname (Path): filename containing deck information
+    Returns:
+        (DataFrame): Nx2 dataframe w/ cols=["Qty", "Name"]
+    """
+    while True:
+        try:
+            # try reading into df of Nx2
+            df = pd.read_fwf(fname, header=None)
+            df.columns = ("Qty", "Name")
+        except ValueError:
+            # if padding issue, raise ValueError and pad 3rd char in each line
+            new_lines = []
+            # open fname, pad third char with space to ensure fwf
+            with open(fname, "r") as source:
+                lines = source.read().splitlines()
+                lines = [l for l in lines if l != ""]
+                for l in lines:
+                    if l[1] == " ":
+                        lsplit = l.split(" ")
+                        lsplit[0] = lsplit[0] + " "
+                        new_lines.append(" ".join(lsplit))
+                    else:
+                        new_lines.append(l)
+            # overwrite previous fname with proper formatting
+            with open(fname, "w") as fp:
+                for line in new_lines:
+                    print(line, file=fp)
+            # open new formatted file as df again
+            continue
+        break
+    return df
 
 
 def parse_text_file(fname):
@@ -48,10 +96,10 @@ def parse_text_file(fname):
 
     p = Path(fname)
 
-    # read fname into df, handle formatting
-    if p.suffix == ".txt":
-        df = pd.read_fwf(fname, header=None)
-        df.columns = ("Qty", "Name")
+    # read fname into df, handle formatting. txt requires preprocessing
+    if (p.suffix == ".txt") or (p.suffix == ".dek"):
+        df = pad_txt_file(p)
+    # read csv/tsv into df, no preprocessing required
     elif p.suffix == ".csv":
         df = pd.read_csv(fname)
     elif p.suffix == ".tsv":
@@ -60,16 +108,19 @@ def parse_text_file(fname):
         sys.exit("Invalid file format")
 
     df = df.dropna(subset=["Qty", "Name"])
-
     # get name & qty from df
     card_names = df["Name"].values.tolist()
     qty = df["Qty"].values.tolist()
 
     # build deck object
     card_list = []
+    errors = []  # currently not doing anything with this, may use in future
     for c, q in zip(card_names, qty):
-        card_list.append(fetch_card_data(c, q))
-
+        try:
+            card_list.append(fetch_card_data(c, q))
+        except KeyError:
+            # if any cards don't exist, save in errors
+            errors.append(c)
     return Deck(p.stem, card_list)
 
 

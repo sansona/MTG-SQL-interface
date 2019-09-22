@@ -80,6 +80,25 @@ class Deck:
 
         return total_mc / n_nonlands
 
+    def cmc_histogram(self):
+        """
+        returns data for cmc distribution of deck
+        (TODO)
+
+        Args:
+            None
+        Returns:
+            (Dict): in format {cmc (int): Deck}
+        """
+        dist = {}
+        for c in self.cards:
+            if c.cmc not in dist:
+                dist[c.cmc] = [c]
+            else:
+                dist[c.cmc].append(c)
+        print(dist)
+        return dist
+
     def subset_by_string(self, search_string: str, text="all"):
         """
         get subset of deck that contains search string
@@ -175,7 +194,7 @@ class Deck:
         Args:
             None
         Return:
-            None
+            (Path): path to temp_dir
         """
         # mkbtemp won't automatically remove temp_dir, need to remove using
         # cleanup_images function
@@ -186,6 +205,8 @@ class Deck:
             response = requests.get(c.im_url)
             im = Image.open(BytesIO(response.content))
             im.save(temp_dir.joinpath(f"{c.name}.bmp"))
+
+        return temp_dir
 
     def cleanup_images(self, temp_dir_path):
         """
