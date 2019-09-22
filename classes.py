@@ -1,6 +1,7 @@
 """
 repository for dataclasses
 """
+import time
 import tempfile
 import shutil
 from pathlib import Path
@@ -83,12 +84,12 @@ class Deck:
     def cmc_histogram(self):
         """
         returns data for cmc distribution of deck
-        (TODO)
 
         Args:
             None
         Returns:
-            (Dict): in format {cmc (int): Deck}
+            (Dict): in format {cmc (int): Deck w/ cmc=cmc}
+            (Dict): in format {cmc (int): count cmc}
         """
         dist = {}
         for c in self.cards:
@@ -97,16 +98,22 @@ class Deck:
             else:
                 dist[c.cmc].append(c)
         print(dist)
-        return dist
+        # filter out lands w/ cmc=0 since don't want in cmc count
+        dist[0] = [m for m in dist[0] if 'Land,' in m.card_type]
 
-    def subset_by_string(self, search_string: str, text="all"):
+        count = {}
+        for cmc_val in [*dist]:
+            count[cmc_val] = len(dist[cmc_val])
+        return dist, count
+
+    def subset_by_string(self, search_string: str, text="text"):
         """
         get subset of deck that contains search string
 
         Args:
             search_string (str): type of card
             text (str): where in Deck data to perform string comparison:
-            options are ('type, text', 'all')
+            options are ('type, text')
         Returns:
             (Deck): subset of original Deck with search_string
         """
@@ -118,10 +125,6 @@ class Deck:
         elif text == "text":
             for c in self.cards:
                 if any(search_string in str_ for str_ in c.text):
-                    subset_list.append(c)
-        else:
-            for c in self.cards:
-                if any(search_string in str_ for str_ in (c.text, c.card_type)):
                     subset_list.append(c)
 
         subset = Deck(f"{search_string}_subset", subset_list)
@@ -205,6 +208,7 @@ class Deck:
             response = requests.get(c.im_url)
             im = Image.open(BytesIO(response.content))
             im.save(temp_dir.joinpath(f"{c.name}.bmp"))
+            time.sleep(0.05)
 
         return temp_dir
 
