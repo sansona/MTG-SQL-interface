@@ -87,10 +87,18 @@ def fetch_card_data(card_name, card_count):
 
     mana_cost = card_obj.mana_cost()
     cmc = int(card_obj.cmc())
-    color_identity = card_obj.color_identity(),
-    card_type = card_obj.type_line(),
+    color_identity = (card_obj.color_identity(),)
+    card_type = (card_obj.type_line(),)
     text = card_obj.oracle_text()
-    im_url = card_obj.image_uris()['normal']
+    im_url = card_obj.image_uris()["normal"]
 
-    return Card(card_name, int(card_count), mana_cost,
-                cmc, color_identity, card_type, text, im_url)
+    return Card(
+        card_name,
+        int(card_count),
+        mana_cost,
+        cmc,
+        color_identity,
+        card_type,
+        text,
+        im_url,
+    )
