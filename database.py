@@ -5,15 +5,15 @@ import sqlite3
 from reader import *
 
 
-def save_new_deck(deck, path):
+def create_new_table(deck, path):
     '''
-    create new table corresponding to deck
+    create empty table corresponding to deck
 
     Args:
         deck (Deck): built Deck object to be converted to database
         path (Path|str): path to save database file
     Returns:
-        None
+        (DB object)
     '''
 
     db = sqlite3.connect(path)
@@ -26,10 +26,12 @@ def save_new_deck(deck, path):
 		''')
     db.commit()
 
+    return db
+
 
 def update_deck(deck, path):
     '''
-    update existing blank table
+    update existing table
 
     Args:
         deck (Deck): built Deck object to be converted to database
@@ -37,7 +39,10 @@ def update_deck(deck, path):
     Returns:
         None
     '''
-    db = sqlite3.connect(path)
+    try:
+        db = sqlite3.connect(path)
+    except FileNotFoundError:
+        db = create_new_table(deck, path)
 
     cursor = db.cursor()
     for c in deck.cards:
@@ -52,18 +57,20 @@ def update_deck(deck, path):
         db.commit()
 
 
-def read_deck(path):
+def query_deck(path, query):
     '''
-    read existing table
+    query existing table
 
     Args:
-        path (Path|str): path to save database file
+        path (Path|str): path to database file
+        query (str): SQL query to be run
     Returns:
         None
     '''
     db = sqlite3.connect(path)
 
     cursor = db.cursor()
-    cursor.execute(f'''SELECT count, color_identity FROM {deck.name}''')
+    cursor.execute(query)  # (TODO): sanitize this
+    # (TODO): how to get this to return deck object instead of strings?
     for row in cursor:
         print(row)
