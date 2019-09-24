@@ -2,7 +2,9 @@
 functions related to storage and retrieval of data
 '''
 import sqlite3
+import pandas as pd
 from reader import *
+from classes import Deck
 
 
 def create_new_table(deck, path):
@@ -59,18 +61,24 @@ def update_deck(deck, path):
 
 def query_deck(path, query):
     '''
-    query existing table
+    query existing table, save Deck corresponding to new query
 
     Args:
         path (Path|str): path to database file
         query (str): SQL query to be run
     Returns:
-        None
+        (Deck)
     '''
     db = sqlite3.connect(path)
+    query_df = pd.read_sql(query, db)
 
+    # get Deck object corresponding to query if id in query
+    cards = []
     cursor = db.cursor()
-    cursor.execute(query)  # (TODO): sanitize this
-    # (TODO): how to get this to return deck object instead of strings?
-    for row in cursor:
-        print(row)
+    if 'id' in query_df.columns:
+        all_ids = tuple(query_df['id'])
+        cursor.execute(f'''SELECT name FROM test WHERE id IN {all_ids}''')
+        for row in cursor:
+            cards.append(fetch_card_data(row, 1))
+
+    return Deck(query, cards)
