@@ -1,8 +1,8 @@
 """
 repository for dataclasses
 """
+import os
 import time
-import tempfile
 import shutil
 from pathlib import Path
 from io import BytesIO
@@ -190,39 +190,43 @@ class Deck:
 
         return subset
 
-    def store_images(self):
+    def store_images(self, dirname):
         """
-        store card image files in temporary directory
+        store card image files in new directory
 
         Args:
-            None
+            dirname (str): name of dir
         Return:
-            (Path): path to temp_dir
+            (Path): path to dirname
         """
-        # mkbtemp won't automatically remove temp_dir, need to remove using
-        # cleanup_images function
-        temp_dir = Path(tempfile.mkdtemp())
+        try:
+            os.mkdir(dirname)
+        except FileExistsError:
+            # if dirname already exists
+            pass
 
-        # save image file via. requests to temp_dir
+        dir_ = Path(dirname)
+
+        # save image file via. requests to dirname
         for c in self.cards:
             response = requests.get(c.im_url)
             im = Image.open(BytesIO(response.content))
-            im.save(temp_dir.joinpath(f"{c.name}.bmp"))
+            im.save(dir_.joinpath(f"{c.name}.bmp"))
             time.sleep(0.05)
 
-        return temp_dir
+        return dir_
 
-    def cleanup_images(self, temp_dir_path):
+    def cleanup_images(self, dirname):
         """
-        delete temp_dir from store_images function once finished with images
+        delete dir from store_images function once finished with images
 
         Args:
-            temp_dir_path (str): path to temp_dir
+            dir_path (str): path to dir
         Returns:
-            None
+            (int): 0/1 corresponding to success/failure
         """
         try:
-            shutil.rmtree(temp_dir_path)
-            print(f"{temp_dir_path} removed")
+            shutil.rmtree(dirname)
+            return 0
         except FileNotFoundError:
-            print(f"{temp_dir_path} does not exist")
+            return 1
