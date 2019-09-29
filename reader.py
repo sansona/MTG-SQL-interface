@@ -16,11 +16,15 @@ def parse_xml_file(fname):
     Assumes Cockatrice export formatting
 
     Args:
-        fname (str): filename containing deck information
+        fname (str): filename containing deck information. Unlike
+            other functions, cannot be Path object as minidom has
+            difficulty reading in
 
     Returns:
         (Deck)
     """
+    p = Path(fname)
+
     xmldoc = minidom.parse(fname)
     card_xml = xmldoc.getElementsByTagName("card")
 
@@ -37,7 +41,7 @@ def parse_xml_file(fname):
             # if any cards don't exist, save in errors
             errors.append(card_name)
 
-    return Deck(Path(fname).stem, card_list)
+    return Deck(p.stem, card_list)
 
 
 def pad_txt_file(fname):
