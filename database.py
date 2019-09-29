@@ -1,6 +1,6 @@
-'''
+"""
 functions related to storage and retrieval of data
-'''
+"""
 from pathlib import Path
 import sqlite3
 import pandas as pd
@@ -8,21 +8,20 @@ from reader import *
 from classes import Deck
 
 
-def create_empty_table(deck, path):
-    '''
+def create_empty_table(path):
+    """
     create empty table corresponding to deck. Will overwrite existing table
 
     Args:
-        deck (Deck): built Deck object to be converted to database
         path (Path|str): path to save database file
     Returns:
         (DB object)
-    '''
+    """
     p = Path(path)
     db = sqlite3.connect(p)
-    query = f'''CREATE TABLE {p.stem}(id INTEGER PRIMARY KEY, name TEXT,
+    query = f"""CREATE TABLE {p.stem}(id INTEGER PRIMARY KEY, name TEXT,
 			count INTEGER, mana_cost TEXT, cmc INTEGER, color_identity TEXT,
-			card_type TEXT, text TEXT, im_url TEXT)'''
+			card_type TEXT, text TEXT, im_url TEXT)"""
     try:
         # make new table
         cursor = db.cursor()
@@ -30,7 +29,7 @@ def create_empty_table(deck, path):
         db.commit()
     except sqlite3.OperationalError:
         # if table already exists, drop and make new table
-        cursor.execute(f'''DROP TABLE {p.stem}''')
+        cursor.execute(f"""DROP TABLE {p.stem}""")
         cursor.execute(query)
         db.commit()
 
@@ -38,7 +37,7 @@ def create_empty_table(deck, path):
 
 
 def deck_to_db(deck, path):
-    '''
+    """
     update empty table with Deck info
 
     Args:
@@ -46,26 +45,35 @@ def deck_to_db(deck, path):
         path (Path): Path object to database file
     Returns:
         (DB object)
-    '''
-    p = Path(str(path) + '.db')
-    db = create_empty_table(deck, p)
+    """
+    p = Path(str(path) + ".db")
+    db = create_empty_table(p)
 
     cursor = db.cursor()
     for c in deck.cards:
-        cursor.execute(f'''
+        cursor.execute(
+            f"""
 			INSERT INTO {p.stem}(name, count, mana_cost,
 			cmc, color_identity, card_type, text, im_url)
-			VALUES (?,?,?,?,?,?,?,?)''', (str(c.name), int(c.count),
-                                 str(c.mana_cost), int(c.cmc),
-                                 str(c.color_identity), str(c.card_type),
-                                 str(c.text), str(c.im_url)))
+			VALUES (?,?,?,?,?,?,?,?)""",
+            (
+                str(c.name),
+                int(c.count),
+                str(c.mana_cost),
+                int(c.cmc),
+                str(c.color_identity),
+                str(c.card_type),
+                str(c.text),
+                str(c.im_url),
+            ),
+        )
         db.commit()
 
     return db
 
 
-def query_db(path, query, output='text'):
-    '''
+def query_db(path, query, output="text"):
+    """
     query existing table, save Deck corresponding to new query
 
     if id included in query, populate Deck object
@@ -76,8 +84,8 @@ def query_db(path, query, output='text'):
         output (str): how to output query results - 'text' or 'images'
 
     Returns:
-        (Deck)
-    '''
+        (Deck): corresponding to query results
+    """
     p = Path(path)
     db = sqlite3.connect(p)
     query_df = pd.read_sql(query, db)
@@ -85,31 +93,38 @@ def query_db(path, query, output='text'):
     # get Deck object corresponding to query if id in query
     cards = []
     cursor = db.cursor()
-    if 'id' in query_df.columns:
-        all_ids = tuple(query_df['id'])
-        cursor.execute(f'''SELECT name FROM {p.stem} WHERE id IN {all_ids}''')
+    if "id" in query_df.columns:
+        all_ids = tuple(query_df["id"])
+        cursor.execute(f"""SELECT name FROM {p.stem} WHERE id IN {all_ids}""")
         for row in cursor:
-            cards.append(fetch_card_data(row, 1))
+            cards.append(fetch_card_data(row[0], 1))
 
-        if output == 'text':
-            query_df.to_csv(query, sep=' ', index=False)
+    deck = Deck(query, cards)
 
-    return Deck(query, cards)
+    # handle how to output results of query
+    if output == "text":
+        query_df.to_csv(query + ".csv", sep=" ", index=False)
+    elif output == "images":
+        deck.store_images(query)
+    else:
+        pass
+
+    return deck
 
 
 def db_to_deck(path):
-    '''
+    """
     converts sqlite table to Deck object if none previously exists
 
     used when loading new deck from table
 
     Args:
         path (Path): path to database file
-    '''
+    """
     p = Path(path)
     db = sqlite3.connect(p)
-    query_df = pd.read_sql(f'''SELECT name, count FROM {p.stem}''', db)
-    names, counts = list(query_df['name']), list(query_df['count'])
+    query_df = pd.read_sql(f"""SELECT name, count FROM {p.stem}""", db)
+    names, counts = list(query_df["name"]), list(query_df["count"])
 
     cards = []
     for name, count in zip(names, counts):
@@ -120,7 +135,7 @@ def db_to_deck(path):
 
 
 def file_to_db(path, window):
-    '''
+    """
     wrapper function for all reading methods
 
     function reads in any file and handles converting to db
@@ -132,23 +147,23 @@ def file_to_db(path, window):
 
     Returns:
         (Deck), (DB object)
-    '''
+    """
     p = Path(path)
-    if p.suffix in ('.txt', '.dek', '.csv', '.tsv'):
+    if p.suffix in (".txt", ".dek", ".csv", ".tsv"):
         deck = read_text_file(p)
         db = deck_to_db(deck, p.stem)
-        window['-LOAD_STATUS-'].Update(f'''{p.stem} object ready''')
+        window["-LOAD_STATUS-"].Update(f"""{p.stem} object ready""")
 
-    if p.suffix in ('.xml', '.cod'):
+    if p.suffix in (".xml", ".cod"):
         # note that arg isn't Path object like other functions
-        deck = read_xml_file(values['Browse'])
+        deck = read_xml_file(str(path))
         db = deck_to_db(deck, p.stem)
-        window['-LOAD_STATUS-'].Update(f'''{p.stem} object ready''')
+        window["-LOAD_STATUS-"].Update(f"""{p.stem} object ready""")
 
-    if p.suffix == '.db':
+    if p.suffix == ".db":
         # loading from db file, no extension
         deck = db_to_deck(p)
         db = sqlite3.connect(p)
-        window['-LOAD_STATUS-'].Update(f'''{p.stem} object ready''')
+        window["-LOAD_STATUS-"].Update(f"""{p.stem} object ready""")
 
     return deck, db

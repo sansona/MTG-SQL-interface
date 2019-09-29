@@ -99,7 +99,7 @@ class Deck:
                 dist[c.cmc].append(c)
         print(dist)
         # filter out lands w/ cmc=0 since don't want in cmc count
-        dist[0] = [m for m in dist[0] if 'Land,' in m.card_type]
+        dist[0] = [m for m in dist[0] if "Land," in m.card_type]
 
         count = {}
         for cmc_val in [*dist]:
@@ -199,11 +199,8 @@ class Deck:
         Return:
             (Path): path to dirname
         """
-        try:
+        if not os.path.isdir(dirname):
             os.mkdir(dirname)
-        except FileExistsError:
-            # if dirname already exists
-            pass
         dir_ = Path(dirname)
 
         # save image file via. requests to dirname
