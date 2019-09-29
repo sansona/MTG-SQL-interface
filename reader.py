@@ -9,7 +9,7 @@ import scrython as sc
 from classes import Card, Deck
 
 
-def parse_xml_file(fname):
+def read_xml_file(fname):
     """
     reads in .xml/.cod file to Deck object
 
@@ -85,7 +85,7 @@ def pad_txt_file(fname):
     return df
 
 
-def parse_text_file(fname):
+def read_text_file(fname):
     """
     reads in common text file formats (.txt, .csv, .tsv), to Deck
 

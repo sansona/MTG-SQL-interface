@@ -8,7 +8,7 @@ from reader import *
 from classes import Deck
 
 
-def create_new_table(deck, path):
+def create_empty_table(deck, path):
     '''
     create empty table corresponding to deck. Will overwrite existing table
 
@@ -37,7 +37,7 @@ def create_new_table(deck, path):
     return db
 
 
-def update_table(deck, path):
+def deck_to_db(deck, path):
     '''
     update empty table with Deck info
 
@@ -48,10 +48,7 @@ def update_table(deck, path):
         None
     '''
     p = Path(path)
-    try:
-        db = sqlite3.connect(p)
-    except FileNotFoundError:
-        db = create_new_table(deck, p)
+    db = create_empty_table(deck, p)
 
     cursor = db.cursor()
     for c in deck.cards:
@@ -65,7 +62,7 @@ def update_table(deck, path):
         db.commit()
 
 
-def query_table(path, query):
+def query_db(path, query, output='text'):
     '''
     query existing table, save Deck corresponding to new query
 
@@ -74,6 +71,8 @@ def query_table(path, query):
     Args:
         path (Path|str): path to database file
         query (str): SQL query to be run
+        output (str): how to output query results - 'text' or 'images'
+
     Returns:
         (Deck)
     '''
@@ -90,10 +89,13 @@ def query_table(path, query):
         for row in cursor:
             cards.append(fetch_card_data(row, 1))
 
+        if output == 'text':
+            query_df.to_csv(query, sep=' ', index=False)
+
     return Deck(query, cards)
 
 
-def deck_from_table(path):
+def db_to_deck(path):
     '''
     converts sqlite table to Deck object if none previously exists
 
@@ -113,3 +115,40 @@ def deck_from_table(path):
         cards.append(c)
 
     return Deck(p.stem, cards)
+
+
+def file_to_db(path, window):
+    '''
+    wrapper function for all reading methods
+
+    function reads in any file and handles converting to db
+    if appropriate
+
+    Args:
+        path (Path|str): Path object to file
+        window (Window): Window object from pysimplegui
+
+    Returns:
+        (db)
+    '''
+    p = Path(path)
+    if p.suffix in ('.txt', '.dek', '.csv', '.tsv'):
+        d = read_text_file(p)
+        deck_to_db(d, p.stem)
+        window['-LOAD_STATUS-'].Update(f'''Loaded {p.stem}''')
+    if p.suffix in ('.xml', '.cod'):
+        # window['-LOAD_STATUS-'].Update(f'''Loading {p.stem}...''')
+        # note that arg isn't Path object like other functions
+        d = read_xml_file(values['Browse'])
+        deck_to_db(d, p.stem)
+        window['-LOAD_STATUS-'].Update(f'''Loaded {p.stem}''')
+    if p.suffix == '.db':
+        # loading from db file, no extension.
+        d = table_to_db(p)
+        deck_to_db(d, p.stem)
+        window['-LOAD_STATUS-'].Update(f'''Loaded {p.stem}''')
+    else:
+        # invalid extension
+        return 1
+
+    return d
