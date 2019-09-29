@@ -204,7 +204,6 @@ class Deck:
         except FileExistsError:
             # if dirname already exists
             pass
-
         dir_ = Path(dirname)
 
         # save image file via. requests to dirname
@@ -212,7 +211,7 @@ class Deck:
             response = requests.get(c.im_url)
             im = Image.open(BytesIO(response.content))
             im.save(dir_.joinpath(f"{c.name}.bmp"))
-            time.sleep(0.05)
+            time.sleep(0.25)
 
         return dir_
 

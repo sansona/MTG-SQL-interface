@@ -45,9 +45,9 @@ def deck_to_db(deck, path):
         deck (Deck): built Deck object to be converted to database
         path (Path): Path object to database file
     Returns:
-        None
+        (DB object)
     '''
-    p = Path(path)
+    p = Path(str(path) + '.db')
     db = create_empty_table(deck, p)
 
     cursor = db.cursor()
@@ -60,6 +60,8 @@ def deck_to_db(deck, path):
                                  str(c.color_identity), str(c.card_type),
                                  str(c.text), str(c.im_url)))
         db.commit()
+
+    return db
 
 
 def query_db(path, query, output='text'):
@@ -129,26 +131,24 @@ def file_to_db(path, window):
         window (Window): Window object from pysimplegui
 
     Returns:
-        (db)
+        (Deck), (DB object)
     '''
     p = Path(path)
     if p.suffix in ('.txt', '.dek', '.csv', '.tsv'):
-        d = read_text_file(p)
-        deck_to_db(d, p.stem)
-        window['-LOAD_STATUS-'].Update(f'''Loaded {p.stem}''')
-    if p.suffix in ('.xml', '.cod'):
-        # window['-LOAD_STATUS-'].Update(f'''Loading {p.stem}...''')
-        # note that arg isn't Path object like other functions
-        d = read_xml_file(values['Browse'])
-        deck_to_db(d, p.stem)
-        window['-LOAD_STATUS-'].Update(f'''Loaded {p.stem}''')
-    if p.suffix == '.db':
-        # loading from db file, no extension.
-        d = table_to_db(p)
-        deck_to_db(d, p.stem)
-        window['-LOAD_STATUS-'].Update(f'''Loaded {p.stem}''')
-    else:
-        # invalid extension
-        return 1
+        deck = read_text_file(p)
+        db = deck_to_db(deck, p.stem)
+        window['-LOAD_STATUS-'].Update(f'''{p.stem} object ready''')
 
-    return d
+    if p.suffix in ('.xml', '.cod'):
+        # note that arg isn't Path object like other functions
+        deck = read_xml_file(values['Browse'])
+        db = deck_to_db(deck, p.stem)
+        window['-LOAD_STATUS-'].Update(f'''{p.stem} object ready''')
+
+    if p.suffix == '.db':
+        # loading from db file, no extension
+        deck = db_to_deck(p)
+        db = sqlite3.connect(p)
+        window['-LOAD_STATUS-'].Update(f'''{p.stem} object ready''')
+
+    return deck, db
