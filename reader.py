@@ -1,5 +1,7 @@
 """
-helper functions for reading deck input into Deck objects
+Helper functions for reading deck input into Deck objects
+
+Functions assume formatting via. tappedout.net exporting and/or Cockatrice formatting
 """
 import sys
 from xml.dom import minidom
@@ -11,9 +13,7 @@ from classes import Card, Deck
 
 def read_xml_file(fname):
     """
-    reads in .xml/.cod file to Deck object
-
-    Assumes Cockatrice export formatting
+    Reads in .xml/.cod file to Deck object. Assumes Cockatrice export formatting
 
     Args:
         fname (str): filename containing deck information. Unlike
@@ -46,8 +46,8 @@ def read_xml_file(fname):
 
 def pad_txt_file(fname):
     """
-    preprocesses .txt files. Other text formats are outputted in consistent
-    format via. tappedout exporting function, but .txt ir prone to padding
+    Preprocesses .txt files. Other text formats are outputted in consistent
+    format via. tappedout exporting function, but .txt are prone to padding
     issues. If run into problems reading into df from padding issues, pad
     third char
 
@@ -58,7 +58,7 @@ def pad_txt_file(fname):
     """
     while True:
         try:
-            # try reading into df of Nx2
+            # try reading into df of dim Nx2
             df = pd.read_fwf(fname, header=None)
             df.columns = ("Qty", "Name")
         except ValueError:
@@ -87,9 +87,9 @@ def pad_txt_file(fname):
 
 def read_text_file(fname):
     """
-    reads in common text file formats (.txt, .csv, .tsv), to Deck
+    Reads in common text file formats (.txt, .csv, .tsv), to Deck
 
-    parsing assumes formatting from tappedout export function
+    Parsing assumes formatting from tappedout export function
 
     Args:
         fname (str): filename containing deck information
@@ -130,7 +130,7 @@ def read_text_file(fname):
 
 def fetch_card_data(card_name, card_count):
     """
-    use scryfall API to convert card name to Card object
+    Use scryfall API to convert card name to Card object
 
     Args:
         card_name (str): name of card

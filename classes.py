@@ -1,5 +1,5 @@
 """
-repository for dataclasses
+Repository for dataclasses
 """
 import os
 import time
@@ -42,6 +42,9 @@ class Deck:
     """
     class containing deck name and list of all Cards
 
+    Many included methods can be substituted by SQL query but keeping
+    as part of default methods for redundancy
+
     Args:
         name (str): name of deck
         cards (List of Cards): list containing Card objects
@@ -52,7 +55,7 @@ class Deck:
 
     def n_cards(self):
         """
-        returns number of total cards in deck
+        Returns number of total cards in deck
         """
         n = 0
         for card in self.cards:
@@ -62,13 +65,13 @@ class Deck:
 
     def n_unique_cards(self):
         """
-        returns number of unique Cards in Deck
+        Returns number of unique Cards in Deck
         """
         return len(self.cards)
 
     def average_cmc(self):
         """
-        return average cmc of cards in deck
+        Return average cmc of cards in deck
         """
         nonlands = [c for c in self.cards if "Land," not in c.card_type]
 
@@ -83,10 +86,8 @@ class Deck:
 
     def cmc_histogram(self):
         """
-        returns data for cmc distribution of deck
+        Returns data for cmc distribution of deck
 
-        Args:
-            None
         Returns:
             (Dict): in format {cmc (int): Deck w/ cmc=cmc}
             (Dict): in format {cmc (int): count cmc}
@@ -108,7 +109,7 @@ class Deck:
 
     def subset_by_string(self, search_string: str, text="text"):
         """
-        get subset of deck that contains search string
+        Get subset of deck that contains search string
 
         Args:
             search_string (str): type of card
@@ -133,7 +134,7 @@ class Deck:
 
     def subset_by_cmc(self, cost: int):
         """
-        return distribution of cmc greater and less than cost
+        Return distribution of cmc greater and less than cost
 
         Args:
             cost (int): mana cost to be compared against
@@ -162,7 +163,7 @@ class Deck:
 
     def subset_by_color(self, colors: list, exact_colors=False):
         """
-        get subset of deck that shares color identity
+        Get subset of deck that shares color identity
 
         Args:
             colors (list): color identity in form ['W', 'B'
@@ -192,7 +193,7 @@ class Deck:
 
     def store_images(self, dirname):
         """
-        store card image files in new directory
+        Store card image files in new directory
 
         Args:
             dirname (str): name of dir
@@ -214,7 +215,7 @@ class Deck:
 
     def cleanup_images(self, dirname):
         """
-        delete dir from store_images function once finished with images
+        Delete dir from store_images function once finished with images
 
         Args:
             dir_path (str): path to dir

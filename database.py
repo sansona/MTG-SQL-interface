@@ -1,5 +1,5 @@
 """
-functions related to storage and retrieval of data
+Functions related to storage and retrieval of data
 """
 from pathlib import Path
 import sqlite3
@@ -10,7 +10,7 @@ from classes import Deck
 
 def create_empty_table(path):
     """
-    create empty table corresponding to deck. Will overwrite existing table
+    Create empty table corresponding to deck. Will overwrite existing table
 
     Args:
         path (Path|str): path to save database file
@@ -38,7 +38,7 @@ def create_empty_table(path):
 
 def deck_to_db(deck, path):
     """
-    update empty table with Deck info
+    Create empty table, populate with deck information
 
     Args:
         deck (Deck): built Deck object to be converted to database
@@ -74,7 +74,7 @@ def deck_to_db(deck, path):
 
 def query_db(path, query, output="text"):
     """
-    query existing table, save Deck corresponding to new query
+    Query existing table, save Deck corresponding to new query
 
     if id included in query, populate Deck object
 
@@ -114,7 +114,7 @@ def query_db(path, query, output="text"):
 
 def db_to_deck(path):
     """
-    converts sqlite table to Deck object if none previously exists
+    Converts sqlite table to Deck object if none previously exists
 
     used when loading new deck from table
 
@@ -136,7 +136,7 @@ def db_to_deck(path):
 
 def file_to_db(path, window):
     """
-    wrapper function for all reading methods
+    Wrapper function for all reading methods
 
     function reads in any file and handles converting to db
     if appropriate

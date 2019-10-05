@@ -1,5 +1,5 @@
 """
-code for handling GUI
+Code for handling GUI
 """
 from pathlib import Path
 import PySimpleGUI as sg
@@ -10,7 +10,7 @@ from classes import Card, Deck
 
 def generate_gui():
     """
-    function for generating GUI
+    Function for generating GUI
     """
     layout = [
         [sg.Text("Load from file: ", size=(40, 1),
